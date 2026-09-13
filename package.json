@@ -1,6 +1,6 @@
 {
   "name": "dsh-openai-oauth",
-  "version": "0.4.1-permissions.1",
+  "version": "0.4.0",
   "description": "DeepSeek Harness LLM provider for Codex models using managed ChatGPT OAuth",
   "type": "module",
   "main": "lib/index.js",
