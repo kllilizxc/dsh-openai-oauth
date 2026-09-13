@@ -1,12 +1,12 @@
 import type { Context } from '@deepseek-ai/cordis'
 import type {} from '@deepseek-ai/dsh-host-webserver'
 import {
-  CallId,
   LlmAdapter,
   LlmError,
   ReasoningEffortId,
 } from '@deepseek-ai/dsh-llm'
 import type {
+  CallId,
   ContentBlock,
   GenerateOptions,
   LlmModelInfo,
@@ -303,7 +303,7 @@ export class CodexAppServerAdapter extends LlmAdapter {
           for (const call of calls) {
             const index = nextIndex++
             const args = JSON.stringify(call.arguments ?? {})
-            const id = CallId(call.callId)
+            const id = call.callId as CallId
             yield { type: 'block-start', index, blockType: 'tool-call' }
             yield { type: 'tool-call-delta', index, id, name: call.name, argumentsDelta: args }
             yield {
