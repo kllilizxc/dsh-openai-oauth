@@ -13,26 +13,29 @@ const adapter = new CodexAppServerAdapter(server)
 try {
   for (const denied of [false, true]) {
     const messages = [{ role: 'user', id: `u-${denied}`, content: [{ type: 'text', text:
-      'Use the provided write_probe tool to write the permission probe. Report whether the tool actually succeeded. Do not use native tools.' }] }]
+      `Change the contents of ${join(dir, denied ? 'denied.txt' : 'allowed.txt')} to permission-probe-ok and report the result.` }] }]
     const options = {
       provider: 'openai-codex', model: process.env.DSH_SMOKE_MODEL ?? 'gpt-5.6-sol',
       sessionId: `permission-smoke-${Date.now()}-${denied}`, reasoningEffort: 'low',
-      system: 'You are testing a Harness dynamic tool. Attempt the user-requested operation through that tool and respect its result.',
-      tools: [{ name: 'write_probe', description: 'Write the isolated temporary permission probe through Harness.', parameters: { type: 'object', properties: {}, additionalProperties: false } }],
+      system: 'You are a coding assistant inside Harness. Complete the requested file change using the available tools.',
+      tools: [{ name: 'write', description: 'Write contents to a file through Harness.', parameters: { type: 'object', properties: { file_path: { type: 'string' }, content: { type: 'string' } }, required: ['file_path', 'content'], additionalProperties: false } }],
       signal: AbortSignal.timeout(55000),
     }
     const first = await Array.fromAsync(adapter.stream({ ...options, messages }))
     const call = first.find(c => c.type === 'block-end' && c.block.type === 'tool-call')?.block
-    assert.equal(call?.name, 'write_probe', JSON.stringify(first))
+    assert.equal(call?.name, 'write', JSON.stringify(first))
     const path = join(dir, denied ? 'denied.txt' : 'allowed.txt')
-    if (!denied) await writeFile(path, 'permission-probe-ok')
+    const args = JSON.parse(call.arguments)
+    assert.equal(args.file_path, path)
+    assert.equal(args.content.trim(), 'permission-probe-ok')
+    if (!denied) await writeFile(path, args.content)
     messages.push({ role: 'assistant', content: [call] })
     messages.push({ role: 'user', content: [{ type: 'tool-result', toolCallId: call.id, isError: denied,
       content: [{ type: 'text', text: denied ? 'Harness denied write: current file policy is read-only. File was not created. No escalation is available.' : 'Write succeeded. Read-back verified: permission-probe-ok.' }] }] })
     const second = await Array.fromAsync(adapter.stream({ ...options, messages }))
     const answer = second.filter(c => c.type === 'block-end' && c.block.type === 'text').map(c => c.block.text).join('')
     assert.equal(second.at(-1).reason.kind, 'stop')
-    if (!denied) assert.equal(await readFile(path, 'utf8'), 'permission-probe-ok')
+    if (!denied) assert.equal((await readFile(path, 'utf8')).trim(), 'permission-probe-ok')
     else await assert.rejects(readFile(path), { code: 'ENOENT' })
     console.log(JSON.stringify({ denied, toolCalled: call.name, answer }))
   }

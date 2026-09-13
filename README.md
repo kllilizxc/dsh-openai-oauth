@@ -79,7 +79,7 @@ These commands also remove registrations left by the old package name. They do n
 
 ## Tool permissions
 
-Harness enforces file access and approvals for its dynamic tools. Codex native tools remain in a read-only sandbox; that sandbox does not constrain tools executed by Harness. The adapter explains this boundary in developer instructions so the model follows actual Harness success, denial, or approval results instead of asking users to switch workspaces based on Codex metadata.
+Harness enforces file access and approvals for its dynamic tools. Threads use `environments: []` to disable Codex environment access, removing native file tools such as `apply_patch` instead of relying only on instructions to avoid them. Codex native tools remain in a read-only sandbox; that sandbox does not constrain tools executed by Harness. The adapter explains this boundary in developer instructions so the model follows actual Harness success, denial, or approval results instead of asking users to switch workspaces based on Codex metadata.
 
 Reload the plugin after upgrading so newly created Codex sessions receive the instructions. Already running sessions are not updated automatically.
 

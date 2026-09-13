@@ -64,6 +64,7 @@ test('bridges a Codex dynamic tool call across two Harness model steps', async (
   }))
   assert.equal(server.turnInput, 'ping\n\nruntime context')
   assert.equal(server.threadInput.sandbox, 'read-only')
+  assert.deepEqual(server.threadInput.environments, [])
   assert.equal(server.threadInput.approvalPolicy, 'never')
   assert.match(server.threadInput.developerInstructions, /outside the Codex native-tool sandbox/)
   assert.match(server.threadInput.developerInstructions, /including denials and approval requirements/)
