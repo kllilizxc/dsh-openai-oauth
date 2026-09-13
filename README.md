@@ -77,6 +77,12 @@ npx -y dsh-openai-oauth uninstall --purge-auth
 
 These commands also remove registrations left by the old package name. They do not install a permanent global npm package. npm may retain its normal download cache.
 
+## Tool permissions
+
+Harness enforces file access and approvals for its dynamic tools. Codex native tools remain in a read-only sandbox; that sandbox does not constrain tools executed by Harness. The adapter explains this boundary in developer instructions so the model follows actual Harness success, denial, or approval results instead of asking users to switch workspaces based on Codex metadata.
+
+Reload the plugin after upgrading so newly created Codex sessions receive the instructions. Already running sessions are not updated automatically.
+
 ## Local development
 
 ```sh
