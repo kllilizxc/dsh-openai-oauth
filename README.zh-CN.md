@@ -83,6 +83,14 @@ npx -y dsh-openai-oauth uninstall --purge-auth
 
 这两条命令也会清理旧包名留下的注册。插件通过 `npx` 运行，不会在系统中留下一个长期安装的全局 npm 包。npm 自身仍可能保留普通下载缓存。
 
+可手动运行真实 Harness 端到端验证：
+
+```sh
+DSH_CLI=/absolute/path/to/dsh/lib/bin.js node scripts/harness-permission-smoke.mjs
+```
+
+该验证使用现有插件 ChatGPT 登录，在隔离的 Harness 数据目录与工作区中分别运行完全访问、只读策略，通过真实 `edit` 和 `read` 工具验证文件内容与持久化调用结果，结束后清理临时数据。可用 `DSH_SMOKE_PROVIDER` 指向已安装插件的入口，验证实际安装版本。
+
 ## 本地开发
 
 ```sh
